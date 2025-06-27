@@ -42,7 +42,7 @@ jobs:
     - name: Create upgrade branch
       shell: bash
       run: |
-        git checkout -b ${{ steps.set-branch-name.outputs.BRanCH_NAME }}
+        git checkout -b ${{ steps.set-branch-name.outputs.BRANCH_NAME }}
 
     - name: Update Ruby versions
       shell: bash
@@ -81,8 +81,8 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        if git ls-remote --exit-code --heads origin " ${{ steps.set-branch-name.outputs.BRanCH-NAME }}"; then
-          git push origin --delete "${{ steps.set-branch-name.outputs.BRanCH-NAME }}"
+        if git ls-remote --exit-code --heads origin " ${{ steps.set-branch-name.outputs.BRANCH_NAME }}"; then
+          git push origin --delete "${{ steps.set-branch-name.outputs.BRANCH_NAME }}"
         fi
         git add .
         git commit -m "Update Ruby to version ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}"
@@ -108,7 +108,7 @@ jobs:
           --title "Update Ruby to version ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" \
           --body "$PR_BODY" \
           --base main \
-          --head ${{ steps.set-branch-name.outputs.BRanCH-NAME }}
+          --head ${{ steps.set-branch-name.outputs.BRANCH_NAME }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #    steps:

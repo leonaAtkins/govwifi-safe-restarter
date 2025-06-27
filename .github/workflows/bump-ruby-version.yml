@@ -31,11 +31,11 @@ jobs:
     - name: Check if Ruby is updated
       shell: bash
       run: |
-        if [[ grep -q ".ruby-version" "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ]]; then
+        if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
           echo "Ruby Version Match, nothing to do, exit with success."
           exit 1
         else
-          echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}, continue to update."
+          echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }} continue to update."
         fi
 
     - name: set branch name

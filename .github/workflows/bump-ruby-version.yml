@@ -55,7 +55,9 @@ jobs:
         rm Gemfile.bak
 
         # Now run bundle update
-        bundle update --ruby
+        # bundle update --ruby
+        bundle install
+        bundle update --patch
         echo "Updated Gemfile and dependencies"
 
     - name: Check for changes

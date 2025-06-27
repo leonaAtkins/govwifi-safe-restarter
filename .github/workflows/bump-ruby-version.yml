@@ -31,7 +31,7 @@ jobs:
     - name: Check if Ruby is updated
       shell: bash
       run: |
-        if [[ grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ".ruby-version" ]]; then
+        if [[ grep -q ".ruby-version" "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ]]; then
           echo "Ruby Version Match, nothing to do, exit with success."
           exit 1
         else

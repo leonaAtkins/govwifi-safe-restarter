@@ -25,13 +25,14 @@ jobs:
       id: get-ruby-version
       shell: bash
       run: |
+          ls
           LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
           echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> "$GITHUB_OUTPUT"
 
     - name: set branch name
       id: set-branch-name
       shell: bash
-      run: echo "BRANCH-NAME=update-to-ruby-${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" >> "$GITHUB_OUTPUT"
+      run: echo "BRANCH_NAME=update-to-ruby-${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" >> "$GITHUB_OUTPUT"
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -46,7 +47,7 @@ jobs:
     - name: Update Ruby versions
       shell: bash
       run: |
-        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" .ruby_version
+        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/"  .ruby-version
         echo "Updated .ruby-version file"
         sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" DockerFile
         echo "Updated DockerFile"

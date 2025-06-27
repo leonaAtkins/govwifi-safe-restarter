@@ -3,7 +3,7 @@ name: Upgrade Ruby
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 1 * 0" # Runs weekly
+    - cron: "0 0 1 * 0" # Runs Monthly
 
 permissions:
   contents: write
@@ -13,7 +13,98 @@ jobs:
   upgrade-ruby:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: andrew/ruby-upgrade-action@main
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Setup User Env
+#      run: |
+#          git config user.name "${{ github.actor }}"
+#          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Determine target Ruby version
+      id: get-ruby-version
+      shell: bash
+      run: |
+          LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
+          echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> "$GITHUB_OUTPUT"
+
+    - name: set branch name
+      id: set-branch-name
+      shell: bash
+      run: echo "BRANCH-NAME=update-to-ruby-${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" >> "$GITHUB_OUTPUT"
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}
+
+    - name: Create upgrade branch
+      shell: bash
+      run: |
+        git checkout -b ${{ steps.set-branch-name.outputs.BRanCH-NAME }}
+
+    - name: Update Ruby versions
+      shell: bash
+      run: |
+        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" .ruby_version
+        echo "Updated .ruby-version file"
+        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" DockerFile
+        echo "Updated DockerFile"
+        sed -i.bak "s/^ruby [\"'][^\"']*[\"']/ruby '${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" Gemfile
+        rm Gemfile.bak
+
+        # Now run bundle update
+        bundle update --ruby
+        echo "Updated Gemfile and dependencies"
+
+    - name: Check for changes
+      shell: bash
+      id: check_changes
+      run: |
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit changes
+      if: steps.check_changes.outputs.has_changes == 'true'
+      shell: bash
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        if git ls-remote --exit-code --heads origin " ${{ steps.set-branch-name.outputs.BRanCH-NAME }}"; then
+          git push origin --delete "${{ steps.set-branch-name.outputs.BRanCH-NAME }}"
+        fi
+        git add .
+        git commit -m "Update Ruby to version ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}"
+        git push origin ${{ steps.set-branch-name.outputs.BRanCH-NAME }}
+
+    - name: Create Pull Request
+      if: steps.check_changes.outputs.has_changes == 'true'
+      shell: bash
+      run: |
+        PR_BODY="This PR updates the Ruby version to ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}.
+
+        Changes made:
+        - Updated .ruby-version file (if present)
+        - Updated Gemfile ruby version (if present)
+        - Updated Dockerfile ruby version (if present)
+        - Updated Gemfile.lock dependencies
+
+        Please review and test before merging.
+
+        Powered by [Ruby Upgrade Action](https://github.com/andrew/ruby-upgrade-action/)"
+
+        gh pr create \
+          --title "Update Ruby to version ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" \
+          --body "$PR_BODY" \
+          --base main \
+          --head ${{ steps.set-branch-name.outputs.BRanCH-NAME }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: andrew/ruby-upgrade-action@main
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}

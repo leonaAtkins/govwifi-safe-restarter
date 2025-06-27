@@ -56,11 +56,11 @@ jobs:
         #sed -i.bak "s/^ruby [\"'][^\"']*[\"']/ruby '${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" Gemfile
         #rm Gemfile.bak
         #cat Gemfile
-        #echo "Remove and rebuild lock file."
-        #rm Gemfile.lock
-        #echo "Gemfile.lock removed"
+        echo "Remove and rebuild lock file."
+        rm Gemfile.lock
+        echo "Gemfile.lock removed"
         # Now run bundle update
-        bundle update --ruby
+        # bundle update --ruby
         # bundle install
         #bundle update --patch
         echo "Updated Gemfile and dependencies"

@@ -107,7 +107,7 @@ jobs:
         gh pr create \
           --title "Update Ruby to version ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" \
           --body "$PR_BODY" \
-          --base main \
+          --base master \
           --head ${{ steps.set-branch-name.outputs.BRANCH_NAME }}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

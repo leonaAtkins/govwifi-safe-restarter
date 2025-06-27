@@ -25,9 +25,18 @@ jobs:
       id: get-ruby-version
       shell: bash
       run: |
-          ls
           LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
           echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> "$GITHUB_OUTPUT"
+
+    - name: Check if Ruby is updated
+      shell: bash
+      run: |
+        if [[ grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ".ruby-version" ]]; then
+          echo "Ruby Version Match, nothing to do, exit with success."
+          exit 1
+        else
+          echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}, continue to update."
+        fi
 
     - name: set branch name
       id: set-branch-name
@@ -53,16 +62,10 @@ jobs:
         sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/ Dockerfile
         cat Dockerfile
         echo "Updated DockerFile"
-        #sed -i.bak "s/^ruby [\"'][^\"']*[\"']/ruby '${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" Gemfile
-        #rm Gemfile.bak
-        #cat Gemfile
         echo "Remove and rebuild lock file."
         rm Gemfile.lock
         echo "Gemfile.lock removed"
-        # Now run bundle update
-        # bundle update --ruby
-        # bundle install
-        #bundle update --patch
+        bundle install
         echo "Updated Gemfile and dependencies"
 
     - name: Check for changes
@@ -95,10 +98,10 @@ jobs:
         PR_BODY="This PR updates the Ruby version to ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}.
 
         Changes made:
-        - Updated .ruby-version file (if present)
-        - Updated Gemfile ruby version (if present)
-        - Updated Dockerfile ruby version (if present)
-        - Updated Gemfile.lock dependencies
+        - Updated .ruby-version file
+        - Updated Gemfile ruby version
+        - Updated Dockerfile ruby version
+        - Rebuilt Gemfile.lock dependencies
 
         Please review and test before merging.
 

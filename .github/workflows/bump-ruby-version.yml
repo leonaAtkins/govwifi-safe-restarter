@@ -49,7 +49,7 @@ jobs:
       run: |
         sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/"  .ruby-version
         echo "Updated .ruby-version file"
-        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" DockerFile
+        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" Dockerfile
         echo "Updated DockerFile"
         sed -i.bak "s/^ruby [\"'][^\"']*[\"']/ruby '${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" Gemfile
         rm Gemfile.bak

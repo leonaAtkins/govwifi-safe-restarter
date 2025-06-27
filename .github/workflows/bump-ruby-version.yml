@@ -47,21 +47,21 @@ jobs:
     - name: Update Ruby versions
       shell: bash
       run: |
-        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" .ruby-version
+        sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/ .ruby-version
         cat .ruby-version
         echo "Updated .ruby-version file"
-        sed -i "s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" Dockerfile
-        cat .Dockerfile
+        sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/ Dockerfile
+        cat Dockerfile
         echo "Updated DockerFile"
         #sed -i.bak "s/^ruby [\"'][^\"']*[\"']/ruby '${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/" Gemfile
         #rm Gemfile.bak
         #cat Gemfile
-        echo "Remove and rebuild lock file."
-        rm Gemfile.lock
-        echo "Gemfile.lock removed"
+        #echo "Remove and rebuild lock file."
+        #rm Gemfile.lock
+        #echo "Gemfile.lock removed"
         # Now run bundle update
-        # bundle update --ruby
-        bundle install
+        bundle update --ruby
+        # bundle install
         #bundle update --patch
         echo "Updated Gemfile and dependencies"
 

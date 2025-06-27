@@ -55,6 +55,7 @@ jobs:
         rm Gemfile.bak
         echo "Remove and rebuild lock file."
         rm Gemfile.lock
+        echo "Gemfile.lock removed"
         # Now run bundle update
         # bundle update --ruby
         bundle install

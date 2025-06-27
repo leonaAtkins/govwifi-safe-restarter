@@ -15,8 +15,10 @@ jobs:
     steps:
     - name: Setup User Env
       run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          #git config user.name "${{ github.actor }}"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          #git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
     - name: Check out code
       uses: actions/checkout@v4

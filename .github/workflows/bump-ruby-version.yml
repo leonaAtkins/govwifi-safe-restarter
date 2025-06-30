@@ -72,7 +72,7 @@ jobs:
       continue-on-error: true
 
     - name: Check on update failure
-      if: steps.bundle-update.outputs.status == 'failure'
+      if: steps.bundle-update.outcome != 'success'
       run: |
         echo "Bundle Update didn't work, so have to brute force it"
         echo "Remove and rebuild lock file."

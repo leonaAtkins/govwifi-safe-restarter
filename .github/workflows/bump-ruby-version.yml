@@ -62,11 +62,24 @@ jobs:
         sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}'/ Dockerfile
         cat Dockerfile
         echo "Updated DockerFile"
+
+    - name: Attempt to run bundle update
+      id: bundle-update
+      shell: bash
+      run: |
+        bundle update --ruby
+        echo "Updated Gemfile and dependencies"
+      continue-on-error: true
+
+    - name: Check on update failure
+      if: steps.bundle-update.outputs.status == 'failure'
+      run: |
+        echo "Bundle Update didn't work, so have to brute force it"
         echo "Remove and rebuild lock file."
         rm Gemfile.lock
         echo "Gemfile.lock removed"
         bundle install
-        echo "Updated Gemfile and dependencies"
+        echo "Reinstalled Gems and dependencies"
 
     - name: Check for changes
       shell: bash

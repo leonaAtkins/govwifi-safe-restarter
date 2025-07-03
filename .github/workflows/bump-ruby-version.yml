@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: leonaAtkins/govwifi-safe-restarter/.github/actions/update-ruby.yml@main
+      - uses: leonaAtkins/govwifi-safe-restarter/.github/actions/update-ruby.yml@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

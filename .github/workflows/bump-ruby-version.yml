@@ -1,4 +1,4 @@
-name: Upgrade Ruby
+name: Update Ruby
 
 on:
   workflow_dispatch:
@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: update-ruby.yml@main
+      - uses: leonaAtkins/govwifi-safe-restarter/.github/workflows/update-ruby.yml@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

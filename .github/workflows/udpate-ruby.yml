@@ -1,4 +1,4 @@
-name: Upgrade Ruby
+name: Check and update Ruby
 
 on:
   workflow_call:

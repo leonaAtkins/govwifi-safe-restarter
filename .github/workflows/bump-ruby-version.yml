@@ -9,6 +9,7 @@ jobs:
   upgrade-ruby:
     runs-on: ubuntu-latest
     steps:
-      - uses: leonaAtkins/govwifi-safe-restarter/.github/workflows/update-ruby.yml@main
+      - uses: actions/checkout@v4
+      - uses: leonaAtkins/govwifi-safe-restarter/.github/actions/update-ruby.yml@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

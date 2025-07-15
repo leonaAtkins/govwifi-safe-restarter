@@ -1,0 +1,63 @@
+name: "Commit changes and Raise PR"
+description: "Commit changes to branch and raise PR"
+
+inputs:
+  github-token:
+    description: 'GitHub token for creating pull requests'
+    required: true
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+  - name: Check for changes
+    shell: bash
+    id: check_changes
+    run: |
+      if [[ -n "$(git status --porcelain)" ]]; then
+        echo "has_changes=true" >> $GITHUB_OUTPUT
+      else
+        echo "has_changes=false" >> $GITHUB_OUTPUT
+      fi
+
+  - name: Commit changes
+    if: steps.check_changes.outputs.has_changes == 'true'
+    shell: bash
+    run: |
+      git config --local user.email "github-actions[bot]@users.noreply.github.com"
+      git config --local user.name "github-actions[bot]"
+      if git ls-remote --exit-code --heads origin " $BRANCH_NAME"; then
+        git push origin --delete "$BRANCH_NAME"
+      fi
+      git add .
+      git commit -m "Update Ruby to version $TARGET_RUBY_VERSION"
+      git push origin $BRANCH_NAME
+
+  - name: Create Pull Request
+    if: steps.check_changes.outputs.has_changes == 'true'
+    shell: bash
+    run: |
+      PR_BODY="This PR updates the Ruby version to $TARGET_RUBY_VERSION.
+
+      Changes made:
+      - Updated .ruby-version file
+      - Updated Gemfile ruby version
+      - Updated Dockerfile ruby version
+      - Rebuilt Gemfile.lock dependencies
+
+      Please review and test before merging.
+
+      gh pr create \
+        --title "Update Ruby to version $TARGET_RUBY_VERSION" \
+        --body "$PR_BODY" \
+        --base master \
+        --head $BRANCH_NAME
+    env:
+      GH_TOKEN: ${{ inputs.github-token }}
+      #GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      #    steps:
+      #      - uses: actions/checkout@v4
+      #      - uses: andrew/ruby-upgrade-action@main
+      #        with:
+      #          github-token: ${{ secrets.GITHUB_TOKEN }}

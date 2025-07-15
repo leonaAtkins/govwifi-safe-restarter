@@ -11,8 +11,11 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Run Updater
-        #uses: leonaAtkins/govwifi-safe-restarter/.github/actions/update-ruby@master
-        uses: GovWifi/govwifi-actions-workflows/.github/actions/ruby-updater@main
+      - name: Check Ruby Version
+        uses: ./.github/actions/check-ruby
+      - name: Update Ruby Version
+        uses: ./.github/actions/ruby-updater
+      - name: Raise PR
+        uses: ./.github/actions/commit-changes
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

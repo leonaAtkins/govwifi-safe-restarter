@@ -5,21 +5,24 @@ on:
   schedule:
     - cron: "0 0 1 * 0" # Runs Monthly
 
-env:
-  RUBY_UPDATED: 'false'
-
 jobs:
   check-ruby:
     runs-on: ubuntu-latest
+    outputs:
+      TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
+      RUBY_UPDATED: ${{ steps.check-ruby.outputs.RUBY_UPDATED }}
+      COMMIT_BRANCH: ${{ steps.check-ruby.outputs.COMMIT_BRANCH }}
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+      with:
+        ref: add_GH_Action_upddate_Ruby
     - name: Check Ruby Version
       id: check-ruby
       uses: ./.github/actions/check-ruby
     - name: Setup github branch for Ruby Updates
       id: setup-branch
-      if: ${{ env.RUBY_UPDATED }} == 'true'
+      if: ${{ steps.check-ruby.outputs.RUBY_UPDATE }} == 'true'
       uses: ./.github/actions/setup-branch
 
   upgrade-ruby:
@@ -28,11 +31,14 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+      with:
+        ref: add_GH_Action_upddate_Ruby
+
     -  name: Update Ruby Version
-       if: ${{ env.RUBY_UPDATED }} == 'true'
        env:
-         TARGET_RUBY_VERSION: ${{ env.TARGET_RUBY_VERSION }}
-         BRANCH_NAME: ${{ env.BRANCH_NAME }}
+         TARGET_RUBY_VERSION: ${{ needs.check-ruby.outputs.TARGET_RUBY_VERSION }}
+         COMMIT_BRANCH: ${{ needs.check-ruby.outputs.COMMIT_BRANCH }}
+       if: ${{ needs.check-ruby.outputs.RUBY_UPDATED }} == 'true'
        uses: ./.github/actions/update-ruby
        with:
           ruby-path: '.'
@@ -43,9 +49,13 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+      with:
+        ref: add_GH_Action_upddate_Ruby
+
     - name: Raise PR
       env:
-         BRANCH_NAME: ${{ env.BRANCH_NAME }}
+         TARGET_RUBY_VERSION: ${{ needs.check-ruby.outputs.TARGET_RUBY_VERSION }}
+         COMMIT_BRANCH: ${{ needs.check-ruby.outputs.COMMIT_BRANCH }}
       uses: ./.github/actions/commit-changes
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

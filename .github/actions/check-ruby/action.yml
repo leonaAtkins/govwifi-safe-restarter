@@ -14,7 +14,7 @@ runs:
   - name: Check if Ruby is updated
     shell: bash
     run: |
-      if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
+      if grep -q "${{ env.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
         echo "Ruby Version Match, nothing to do, exit with success."
         echo "RUBY_UPDATED=false" >> $GITHUB_ENV
       else

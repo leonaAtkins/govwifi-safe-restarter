@@ -10,6 +10,11 @@ inputs:
 runs:
   using: composite
   steps:
+  - name: checkout branch
+    shell: bash
+    run: |
+      git checkout -b ${{ env.COMMIT_BRANCH }}
+
   - name: Check for changes
     shell: bash
     id: check_changes
@@ -38,7 +43,8 @@ runs:
         --title "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}" \
         --body "$PR_BODY" \
         --base master \
-        --head ${{ env.BRANCH_NAME }}
+        --head ${{ env.COMMIT_BRANCH }} \
+        --draft
 
     env:
       GH_TOKEN: ${{ inputs.github-token }}

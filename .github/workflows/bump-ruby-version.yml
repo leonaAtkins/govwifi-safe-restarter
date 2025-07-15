@@ -14,7 +14,7 @@ jobs:
       - name: Check Ruby Version
         uses: ./.github/actions/check-ruby
       - name: Update Ruby Version
-        uses: ./.github/actions/ruby-updater
+        uses: ./.github/actions/update-ruby
       - name: Raise PR
         uses: ./.github/actions/commit-changes
         with:

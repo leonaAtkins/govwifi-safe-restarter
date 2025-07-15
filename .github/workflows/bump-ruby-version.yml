@@ -25,6 +25,8 @@ jobs:
   upgrade-ruby:
     runs-on: ubuntu-latest
     steps:
+    - name: Check out code
+      uses: actions/checkout@v4
     -  name: Update Ruby Version
        if: ${{ env.RUBY_UPDATED }} == 'true'
        uses: ./.github/actions/update-ruby
@@ -34,7 +36,9 @@ jobs:
   commit-changes:
     runs-on: ubuntu-latest
     steps:
-      - name: Raise PR
-        uses: ./.github/actions/commit-changes
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Check out code
+      uses: actions/checkout@v4
+    - name: Raise PR
+      uses: ./.github/actions/commit-changes
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}

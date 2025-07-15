@@ -1,0 +1,46 @@
+name: "Check Ruby version and setup branch"
+description: "Check Ruby Version and setup branch"
+
+runs:
+  using: composite
+  steps:
+  - name: Check out code
+    uses: actions/checkout@v4
+
+  - name: Determine target Ruby version
+    id: get-ruby-version
+    shell: bash
+    run: |
+      LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
+      echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> "$GITHUB_ENV"
+
+  - name: Check if Ruby is updated
+    shell: bash
+    run: |
+      if grep -q "$TARGET_RUBY_VERSION" ".ruby-version" ; then
+        echo "Ruby Version Match, nothing to do, exit with success."
+        exit 1
+      else
+        echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }} continue to update."
+      fi
+
+  - name: set branch name
+    id: set-branch-name
+    shell: bash
+    run: echo "BRANCH_NAME=update-to-ruby-$TARGET_RUBY_VERSION" >> "$GITHUB_ENV"
+
+  - name: check if branch exists
+    id: check-branch-name
+    shell: bash
+    run: |
+      if [ `git branch --list $BRANCH_NAME` ] ; then
+        echo "Branch $BRANCH_NAME already exists, remove it and re run"
+        exit 1
+      else
+        echo "No branch match, so will create"
+      fi
+
+  - name: Create upgrade branch
+    shell: bash
+    run: |
+      git checkout -b $BRANCH_NAME

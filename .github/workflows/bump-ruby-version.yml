@@ -23,6 +23,8 @@ jobs:
     - name: Setup github branch for Ruby Updates
       id: setup-branch
       if: ${{ steps.check-ruby.outputs.RUBY_UPDATE }} == 'true'
+      env:
+         TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
       uses: ./.github/actions/setup-branch
 
   upgrade-ruby:

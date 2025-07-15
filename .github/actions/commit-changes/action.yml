@@ -26,18 +26,18 @@ runs:
     run: |
       git config --local user.email "github-actions[bot]@users.noreply.github.com"
       git config --local user.name "github-actions[bot]"
-      if git ls-remote --exit-code --heads origin " $BRANCH_NAME"; then
-        git push origin --delete "$BRANCH_NAME"
+      if git ls-remote --exit-code --heads origin " ${{ env.BRANCH_NAME }}"; then
+        git push origin --delete "${{ env.BRANCH_NAME}}"
       fi
       git add .
-      git commit -m "Update Ruby to version $TARGET_RUBY_VERSION"
-      git push origin $BRANCH_NAME
+      git commit -m "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}"
+      git push origin ${{ env.BRANCH_NAME}}
 
   - name: Create Pull Request
     if: steps.check_changes.outputs.has_changes == 'true'
     shell: bash
     run: |
-      PR_BODY="This PR updates the Ruby version to $TARGET_RUBY_VERSION.
+      PR_BODY="This PR updates the Ruby version to ${{ env.TARGET_RUBY_VERSION}}.
 
       Changes made:
       - Updated .ruby-version file
@@ -48,10 +48,10 @@ runs:
       Please review and test before merging.
 
       gh pr create \
-        --title "Update Ruby to version $TARGET_RUBY_VERSION" \
+        --title "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}" \
         --body "$PR_BODY" \
         --base master \
-        --head $BRANCH_NAME
+        --head ${{ env.BRANCH_NAME }}
     env:
       GH_TOKEN: ${{ inputs.github-token }}
       #GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

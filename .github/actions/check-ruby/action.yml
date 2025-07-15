@@ -4,9 +4,6 @@ description: "Check Ruby Version and setup branch"
 runs:
   using: composite
   steps:
-  - name: Check out code
-    uses: actions/checkout@v4
-
   - name: Determine target Ruby version
     id: get-ruby-version
     shell: bash
@@ -17,24 +14,24 @@ runs:
   - name: Check if Ruby is updated
     shell: bash
     run: |
-      if grep -q "$TARGET_RUBY_VERSION" ".ruby-version" ; then
+      if grep -q "${{ env.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
         echo "Ruby Version Match, nothing to do, exit with success."
         exit 1
       else
-        echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }} continue to update."
+        echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ env.TARGET_RUBY_VERSION }} continue to update."
       fi
 
   - name: set branch name
     id: set-branch-name
     shell: bash
-    run: echo "BRANCH_NAME=update-to-ruby-$TARGET_RUBY_VERSION" >> "$GITHUB_ENV"
+    run: echo "BRANCH_NAME=update-to-ruby-${{ env.TARGET_RUBY_VERSION }}" >> "$GITHUB_ENV"
 
   - name: check if branch exists
     id: check-branch-name
     shell: bash
     run: |
-      if [ `git branch --list $BRANCH_NAME` ] ; then
-        echo "Branch $BRANCH_NAME already exists, remove it and re run"
+      if [ `git branch --list ${{ env.BRANCH_NAME }}` ] ; then
+        echo "Branch ${{ env.BRANCH_NAME }} already exists, remove it and re run"
         exit 1
       else
         echo "No branch match, so will create"
@@ -43,4 +40,4 @@ runs:
   - name: Create upgrade branch
     shell: bash
     run: |
-      git checkout -b $BRANCH_NAME
+      git checkout -b ${{ env.BRANCH_NAME }}

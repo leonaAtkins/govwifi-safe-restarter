@@ -5,10 +5,14 @@ runs:
   using: composite
   steps:
 
+  - name: Update Ruby versions
+    shell: bash
+    run: echo $env
+
   - name: Set up Ruby
     uses: ruby/setup-ruby@v1
     with:
-      ruby-version: $TARGET_RUBY_VERSION
+      ruby-version: ${{ env.TARGET_RUBY_VERSION }}
 
   - name: Update Ruby versions
     shell: bash

@@ -13,6 +13,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Check Ruby Version
         uses: ./.github/actions/check-ruby
+        env:
+          TARGET_RUBY_VERSION: env.TARGET_RUBY_VERSION
       - name: Update Ruby Version
         uses: ./.github/actions/update-ruby
       - name: Raise PR

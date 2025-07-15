@@ -24,6 +24,7 @@ jobs:
 
   upgrade-ruby:
     runs-on: ubuntu-latest
+    needs: [check-ruby]
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -35,6 +36,7 @@ jobs:
 
   commit-changes:
     runs-on: ubuntu-latest
+    needs: [check-ruby, upgrade-ruby]
     steps:
     - name: Check out code
       uses: actions/checkout@v4

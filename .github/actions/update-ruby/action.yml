@@ -10,6 +10,10 @@ inputs:
 runs:
   using: composite
   steps:
+  - name: Set up Ruby
+    uses: ruby/setup-ruby@v1
+    with:
+      ruby-version: ${{ env.TARGET_RUBY_VERSION }}
 
   - name: move to ruby path/directory
     shell: bash

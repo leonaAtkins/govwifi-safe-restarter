@@ -17,8 +17,3 @@ runs:
       else
         git checkout -b ${{ env.BRANCH_NAME }}
       fi
-
-  - name: Set up Ruby
-    uses: ruby/setup-ruby@v1
-    with:
-      ruby-version: ${{ env.TARGET_RUBY_VERSION }}

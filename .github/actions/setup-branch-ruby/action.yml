@@ -1,0 +1,24 @@
+name: "Setup branch"
+description: "Create branch for Ruby updates and setup Ruby Eng"
+
+runs:
+  using: composite
+  steps:
+  - name: set branch name
+    id: set-branch-name
+    shell: bash
+    run: echo "BRANCH_NAME=update-to-ruby-${{ env.TARGET_RUBY_VERSION }}" >> "$GITHUB_ENV"
+
+  - name: Create or checkout branch
+    shell: bash
+    run: |
+      if git ls-remote --exit-code --heads origin " ${{ env.BRANCH_NAM }}"; then
+        git checkout ${{ env.BRANCH_NAME }}
+      else
+        git checkout -b ${{ env.BRANCH_NAME }}
+      fi
+
+  - name: Set up Ruby
+    uses: ruby/setup-ruby@v1
+    with:
+      ruby-version: ${{ env.TARGET_RUBY_VERSION }}

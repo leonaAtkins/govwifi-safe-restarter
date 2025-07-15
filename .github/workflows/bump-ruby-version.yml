@@ -5,16 +5,35 @@ on:
   schedule:
     - cron: "0 0 1 * 0" # Runs Monthly
 
+env:
+  RUBY_UPDATED: 'false'
+
 jobs:
+  check-ruby:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+    - name: Check Ruby Version
+      id: check-ruby
+      uses: ./.github/actions/check-ruby
+    - name: Setup github branch for Ruby Updates
+      id: setup-branch
+      if: ${{ env.RUBY_UPDATED }} == 'true'
+      uses: ./.github/actions/setup-branch-ruby
+
   upgrade-ruby:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-      - name: Check Ruby Version
-        uses: ./.github/actions/check-ruby
-      - name: Update Ruby Version
-        uses: ./.github/actions/update-ruby
+    -  name: Update Ruby Version
+       if: ${{ env.RUBY_UPDATED }} == 'true'
+       uses: ./.github/actions/update-ruby
+       with:
+          ruby-path: '.'
+
+  commit-changes:
+    runs-on: ubuntu-latest
+    steps:
       - name: Raise PR
         uses: ./.github/actions/commit-changes
         with:

@@ -1,14 +1,19 @@
 name: "Update Ruby"
 description: "Updates Ruby version"
 
+inputs:
+  ruby-path:
+    description: 'The path/directory where the ruby version config files are located, default root'
+    required: false
+    default: '.'
+
 runs:
   using: composite
   steps:
 
-  - name: Set up Ruby
-    uses: ruby/setup-ruby@v1
-    with:
-      ruby-version: ${{ env.TARGET_RUBY_VERSION }}
+  - name: move to ruby path/directory
+    shell: bash
+    run: cd ${{inputs.ruby-path}}/
 
   - name: Update Ruby versions
     shell: bash
@@ -38,3 +43,26 @@ runs:
       echo "Gemfile.lock removed"
       bundle install
       echo "Reinstalled Gems and dependencies"
+
+  - name: Check for changes
+    shell: bash
+    id: check_changes
+    run: |
+      if [[ -n "$(git status --porcelain)" ]]; then
+        echo "has_changes=true" >> $GITHUB_OUTPUT
+      else
+        echo "has_changes=false" >> $GITHUB_OUTPUT
+      fi
+
+  - name: Commit changes
+    if: steps.check_changes.outputs.has_changes == 'true'
+    shell: bash
+    run: |
+      git config --local user.email "github-actions[bot]@users.noreply.github.com"
+      git config --local user.name "github-actions[bot]"
+      if git ls-remote --exit-code --heads origin " ${{ env.BRANCH_NAME }}"; then
+        git push origin --delete "${{ env.BRANCH_NAME}}"
+      fi
+      git add .
+      git commit -m "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}"
+      git push origin ${{ env.BRANCH_NAME}}

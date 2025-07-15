@@ -14,30 +14,10 @@ runs:
   - name: Check if Ruby is updated
     shell: bash
     run: |
-      if grep -q "${{ env.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
+      if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
         echo "Ruby Version Match, nothing to do, exit with success."
-        exit 1
+        echo "RUBY_UPDATED=false" >> $GITHUB_ENV
       else
-        echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ env.TARGET_RUBY_VERSION }} continue to update."
+        echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }} continue to update."
+        echo "RUBY_UPDATED=true" >> $GITHUB_ENV
       fi
-
-  - name: set branch name
-    id: set-branch-name
-    shell: bash
-    run: echo "BRANCH_NAME=update-to-ruby-${{ env.TARGET_RUBY_VERSION }}" >> "$GITHUB_ENV"
-
-  - name: check if branch exists
-    id: check-branch-name
-    shell: bash
-    run: |
-      if [ `git branch --list ${{ env.BRANCH_NAME }}` ] ; then
-        echo "Branch ${{ env.BRANCH_NAME }} already exists, remove it and re run"
-        exit 1
-      else
-        echo "No branch match, so will create"
-      fi
-
-  - name: Create upgrade branch
-    shell: bash
-    run: |
-      git checkout -b ${{ env.BRANCH_NAME }}

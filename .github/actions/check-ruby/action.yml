@@ -10,7 +10,7 @@ runs:
     run: |
       LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
       echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> $GITHUB_ENV
-      echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> $GITHUB_OUTPUT
+      echo "RUBY_VERSION=$LATEST_RUBY" >> $GITHUB_OUTPUT
 
   - name: Check if Ruby is updated
     shell: bash

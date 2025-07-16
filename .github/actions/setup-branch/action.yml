@@ -1,6 +1,11 @@
 name: "Setup branch"
 description: "Create branch for Ruby updates and setup Ruby Eng"
 
+outputs:
+  COMMIT_BRANCH:
+    description: 'Branch to commit changes to'
+    value: ${{steps.set-branch-name.outputs.COMMIT_BRANCH}}
+
 runs:
   using: composite
   steps:

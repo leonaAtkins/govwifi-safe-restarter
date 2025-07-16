@@ -5,18 +5,13 @@ on:
   schedule:
     - cron: "0 0 1 * 0" # Runs Monthly
 
-env:
-    TARGET_RUBY_VERSION: ''
-    RUBY_UPDATED: 'false'
-    COMMIT_BRANCH: ''
-
 jobs:
   check-ruby:
     runs-on: ubuntu-latest
-#    outputs:
-#      TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
-#      RUBY_UPDATED: ${{ steps.check-ruby.outputs.RUBY_UPDATED }}
-#      COMMIT_BRANCH: ${{ steps.check-ruby.outputs.COMMIT_BRANCH }}
+    outputs:
+      TARGET_RUBY_VERSION: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}
+      RUBY_UPDATED: ${{ steps.ruby-updated.outputs.RUBY_UPDATED }}
+      COMMIT_BRANCH: ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -27,7 +22,7 @@ jobs:
       uses: ./.github/actions/check-ruby
     - name: Setup github branch for Ruby Updates
       id: setup-branch
-      if: ${{ env.RUBY_UPDATED }} == 'true'
+      if: ${{ steps.ruby-updated.outputs.RUBY_UPDATED }} == 'true'
       uses: ./.github/actions/setup-branch
 
   upgrade-ruby:
@@ -40,9 +35,10 @@ jobs:
         ref: add_GH_Action_upddate_Ruby
 
     -  name: Update Ruby Version
-#       env:
-#         TARGET_RUBY_VERSION: ${{ needs.check-ruby.outputs.TARGET_RUBY_VERSION }}
-#         COMMIT_BRANCH: ${{ needs.check-ruby.outputs.COMMIT_BRANCH }}
+       env:
+         TARGET_RUBY_VERSION: ${{ needs.check-ruby.outputs.TARGET_RUBY_VERSION }}
+         COMMIT_BRANCH: ${{ needs.check-ruby.outputs.COMMIT_BRANCH }}
+         RUBY_UPDATED: ${{ needs.check-ruby.outputs.RUBY_UPDATED}}
        if: ${{ env.RUBY_UPDATED }} == 'true'
        uses: ./.github/actions/update-ruby
        with:
@@ -58,9 +54,9 @@ jobs:
         ref: add_GH_Action_upddate_Ruby
 
     - name: Raise PR
-#      env:
-#         TARGET_RUBY_VERSION: ${{ needs.check-ruby.outputs.TARGET_RUBY_VERSION }}
-#         COMMIT_BRANCH: ${{ needs.check-ruby.outputs.COMMIT_BRANCH }}
+      env:
+         TARGET_RUBY_VERSION: ${{ needs.check-ruby.outputs.TARGET_RUBY_VERSION }}
+         COMMIT_BRANCH: ${{ needs.check-ruby.outputs.COMMIT_BRANCH }}
       uses: ./.github/actions/commit-changes
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

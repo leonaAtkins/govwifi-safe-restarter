@@ -14,6 +14,9 @@ runs:
     shell: bash
     run: git fetch && git switch ${{ env.COMMIT_BRANCH }}
 
+  # create a draft pull request, this is because, by a github design, workflows can not trigger
+  # other workflows, unless a PAT, SSH ect is used to trigger, which isn't done here, yet.
+  # So to trigger workflow, just push draft to ready.
   - name: Create Pull Request
     shell: bash
     run: |

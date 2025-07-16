@@ -8,8 +8,12 @@ outputs:
   RUBY_UPDATED:
     description: 'If ruby version is updated from that which the reop uses.'
     value: ${{steps.ruby-updated.outputs.RUBY_UPDATED}}
+  RUBY_PATHS:
+    description: "Paths found in this repo for ruby environments"
+    value: ${{steps.find-ruby-envs.outputs.RUBY_PATHS}}
 
 runs:
+  # Get the latest ruby version from the docker build held in github.
   using: composite
   steps:
   - name: Determine target Ruby version
@@ -19,11 +23,23 @@ runs:
       LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
       echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> $GITHUB_OUTPUT
 
+  # find all the ruby environments, convert new line to comma,
+  # remove trailing comma, create a bash array to get the first env,
+  # and a text array for output to the matrix.
+  - name: find ruby instances
+    shell: bash
+    id: find-ruby-envs
+    run: |
+      r-paths=$(find . -name '.ruby-version' -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')
+      paths_array=(${r-paths//,/ })
+      echo "RUBY_PATHS=[$r-paths]" >> $GITHUB_OUTPUT
+
+  # get the first path from the paths array, set output variable to true if version different to that stored.
   - name: Check if Ruby is updated
     shell: bash
     id: ruby-updated
     run: |
-      if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
+      if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" "${paths_array[0]}/.ruby-version" ; then
         echo "Ruby Version Match, nothing to do, exit with success."
         echo "RUBY_UPDATED=false" >> $GITHUB_OUTPUT
       else

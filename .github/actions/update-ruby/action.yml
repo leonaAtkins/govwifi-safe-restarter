@@ -12,7 +12,7 @@ runs:
   steps:
   - name: checkout update branch
     shell: bash
-    run: git checkout ${{ env.COMMIT_BRANCH }}
+    run: git checkout -b ${{ env.COMMIT_BRANCH }} origin/${{ env.COMMIT_BRANCH }}
 
   - name: move to ruby path/directory
     shell: bash

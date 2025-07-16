@@ -7,7 +7,7 @@ outputs:
     value: ${{steps.get-ruby-version.outputs.TARGET_RUBY_VERSION}}
   RUBY_UPDATED:
     description: 'If ruby version is updated from that which the reop uses.'
-    value: ${{steps.get-ruby-version.outputs.RUBY_UPDATED}}
+    value: ${{steps.ruby-updated.outputs.RUBY_UPDATED}}
 
 runs:
   using: composite

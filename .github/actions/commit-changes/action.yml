@@ -10,23 +10,15 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: checkout branch
+  # Pull update from git, switch to branch
+  - name: checkout update branch
     shell: bash
-    run: |
-      git checkout -b $COMMIT_BRANCH
+    run: git fetch && git switch ${{ env.COMMIT_BRANCH }}
 
-  - name: Check for changes
-    shell: bash
-    id: check_changes
-    run: |
-      if [[ -n "$(git status --porcelain)" ]]; then
-        echo "has_changes=true" >> $GITHUB_OUTPUT
-      else
-        echo "has_changes=false" >> $GITHUB_OUTPUT
-      fi
-
+  # create a draft pull request, this is because, by a github design, workflows can not trigger
+  # other workflows, unless a PAT, SSH ect is used to trigger, which isn't done here, yet.
+  # So to trigger workflow, just push draft to ready.
   - name: Create Pull Request
-    if: steps.check_changes.outputs.has_changes == 'true'
     shell: bash
     run: |
       PR_BODY="This PR updates the Ruby version to $TARGET_RUBY_VERSION.

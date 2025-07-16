@@ -10,14 +10,17 @@ inputs:
 runs:
   using: composite
   steps:
+  # Pull update from git, switch to branch
   - name: checkout update branch
     shell: bash
     run: git fetch && git switch ${{ env.COMMIT_BRANCH }}
 
+  # switch to the directory of the given ruby environment.
   - name: move to ruby path/directory
     shell: bash
     run: cd ${{inputs.ruby-path}}/
 
+  # run the text replacements on the .ruby version and docker file.
   - name: Update Ruby versions
     shell: bash
     run: |
@@ -33,7 +36,8 @@ runs:
     with:
       ruby-version: ${{ env.TARGET_RUBY_VERSION }}
 
-  - name: Attempt to run bundle update
+  # Attempt to run bundle update, this might fail due to builder issues, hence the continue on error flag.
+  - name: Run Bundle update
     id: bundle-update
     shell: bash
     run: |
@@ -41,6 +45,8 @@ runs:
       echo "Updated Gemfile and dependencies"
     continue-on-error: true
 
+  # check if the previous command exited successfully,
+  # if not, remove the gemfeile.lock and rebuild.
   - name: Check on update failure
     shell: bash
     if: steps.bundle-update.outcome != 'success'
@@ -52,6 +58,7 @@ runs:
       bundle install
       echo "Reinstalled Gems and dependencies"
 
+  # Check git for changes.
   - name: Check for changes
     shell: bash
     id: check_changes
@@ -62,6 +69,7 @@ runs:
         echo "has_changes=false" >> $GITHUB_OUTPUT
       fi
 
+  # commit and push the changes to the branch, again the PR can't access this workspace.
   - name: Commit changes
     if: steps.check_changes.outputs.has_changes == 'true'
     shell: bash

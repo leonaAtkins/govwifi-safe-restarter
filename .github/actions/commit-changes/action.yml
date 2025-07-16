@@ -13,7 +13,7 @@ runs:
   - name: checkout branch
     shell: bash
     run: |
-      git checkout -b ${{ env.COMMIT_BRANCH }}
+      git checkout -b $COMMIT_BRANCH
 
   - name: Check for changes
     shell: bash
@@ -29,7 +29,7 @@ runs:
     if: steps.check_changes.outputs.has_changes == 'true'
     shell: bash
     run: |
-      PR_BODY="This PR updates the Ruby version to ${{ env.TARGET_RUBY_VERSION}}.
+      PR_BODY="This PR updates the Ruby version to $TARGET_RUBY_VERSION.
 
       Changes made:
       - Updated .ruby-version file
@@ -40,10 +40,10 @@ runs:
       Please review and test before merging."
 
       gh pr create \
-        --title "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}" \
+        --title "Update Ruby to version $TARGET_RUBY_VERSION" \
         --body "$PR_BODY" \
         --base master \
-        --head ${{ env.COMMIT_BRANCH }} \
+        --head $COMMIT_BRANCH \
         --draft
 
     env:

@@ -10,6 +10,7 @@ inputs:
 runs:
   using: composite
   steps:
+  # Pull update from git, switch to branch
   - name: checkout update branch
     shell: bash
     run: git fetch && git switch ${{ env.COMMIT_BRANCH }}

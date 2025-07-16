@@ -30,9 +30,9 @@ runs:
     shell: bash
     id: find-ruby-envs
     run: |
-      r-paths=$(find . -name '.ruby-version' -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')
-      paths_array=(${r-paths//,/ })
-      echo "RUBY_PATHS=[$r-paths]" >> $GITHUB_OUTPUT
+      r_paths=$(find . -name '.ruby-version' -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')
+      paths_array=(${r_paths//,/ })
+      echo "RUBY_PATHS=[$r_paths]" >> $GITHUB_OUTPUT
 
   # get the first path from the paths array, set output variable to true if version different to that stored.
   - name: Check if Ruby is updated

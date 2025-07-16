@@ -18,8 +18,9 @@ runs:
   - name: Create or checkout branch
     shell: bash
     run: |
-      if git ls-remote --exit-code --heads origin " ${{ steps.set-branch-name.COMMIT_BRANCH }}"; then
-        git checkout ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}
+      if git ls-remote --exit-code --heads origin "${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}"; then
+        echo "branch already exists ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}"
       else
-        git checkout -b ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}
+        git branch ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}
+        git push --set-upstream origin ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}
       fi

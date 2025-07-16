@@ -10,6 +10,10 @@ inputs:
 runs:
   using: composite
   steps:
+  - name: checkout update branch
+    shell: bash
+    run: git fetch && git switch ${{ env.COMMIT_BRANCH }}
+
   - name: move to ruby path/directory
     shell: bash
     run: cd ${{inputs.ruby-path}}/
@@ -67,6 +71,7 @@ runs:
       if git ls-remote --exit-code --heads origin " ${{ env.COMMIT_BRANCH }}"; then
         git push origin --delete "${{ env.COMMIT_BRANCH}}"
       fi
+
       git add .
       git commit -m "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}"
       git push origin ${{ env.COMMIT_BRANCH}}

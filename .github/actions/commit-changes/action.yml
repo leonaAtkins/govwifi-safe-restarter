@@ -10,23 +10,11 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: checkout branch
+  - name: checkout update branch
     shell: bash
-    run: |
-      git checkout -b $COMMIT_BRANCH
-
-  - name: Check for changes
-    shell: bash
-    id: check_changes
-    run: |
-      if [[ -n "$(git status --porcelain)" ]]; then
-        echo "has_changes=true" >> $GITHUB_OUTPUT
-      else
-        echo "has_changes=false" >> $GITHUB_OUTPUT
-      fi
+    run: git fetch && git switch ${{ env.COMMIT_BRANCH }}
 
   - name: Create Pull Request
-    if: steps.check_changes.outputs.has_changes == 'true'
     shell: bash
     run: |
       PR_BODY="This PR updates the Ruby version to $TARGET_RUBY_VERSION.

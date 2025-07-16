@@ -9,15 +9,16 @@ runs:
     shell: bash
     run: |
       LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
-      echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> $GITHUB_ENV
+      echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> $GITHUB_OUTPUT
 
   - name: Check if Ruby is updated
     shell: bash
+    id: ruby-updated
     run: |
-      if grep -q "${{ env.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
+      if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" ".ruby-version" ; then
         echo "Ruby Version Match, nothing to do, exit with success."
-        echo "RUBY_UPDATED=false" >> $GITHUB_ENV
+        echo "RUBY_UPDATED=false" >> $GITHUB_OUTPUT
       else
         echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }} continue to update."
-        echo "RUBY_UPDATED=true" >> $GITHUB_ENV
+        echo "RUBY_UPDATED=true" >> $GITHUB_OUTPUT
       fi

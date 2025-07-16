@@ -46,7 +46,7 @@ jobs:
 
   commit-changes:
     runs-on: ubuntu-latest
-    needs: [check-ruby, upgrade-ruby]
+    needs: [check-ruby-setup, upgrade-ruby]
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -55,8 +55,8 @@ jobs:
 
     - name: Raise PR
       env:
-         TARGET_RUBY_VERSION: ${{ needs.check-ruby.outputs.TARGET_RUBY_VERSION }}
-         COMMIT_BRANCH: ${{ needs.check-ruby.outputs.COMMIT_BRANCH }}
+         TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
+         COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
       uses: ./.github/actions/commit-changes
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

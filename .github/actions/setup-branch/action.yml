@@ -8,14 +8,13 @@ runs:
     id: set-branch-name
     shell: bash
     run: |
-      echo "BRANCH_NAME=update-to-ruby-${{ env.TARGET_RUBY_VERSION }}" >> $GITHUB_ENV
-      echo "COMMIT_BRANCH=${{ env.BRANCH_NAME }}" >> $GITHUB_OUTPUT
+      echo "COMMIT_BRANCH=update-to-ruby-${{ env.TARGET_RUBY_VERSION }}" >> $GITHUB_ENV
 
   - name: Create or checkout branch
     shell: bash
     run: |
-      if git ls-remote --exit-code --heads origin " ${{ env.BRANCH_NAM }}"; then
-        git checkout ${{ env.BRANCH_NAME }}
+      if git ls-remote --exit-code --heads origin " ${{ env.COMMIT_BRANCH }}"; then
+        git checkout ${{ env.COMMIT_BRANCH }}
       else
-        git checkout -b ${{ env.BRANCH_NAME }}
+        git checkout -b ${{ env.COMMIT_BRANCH }}
       fi

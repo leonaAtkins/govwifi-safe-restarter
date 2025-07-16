@@ -17,17 +17,17 @@ runs:
   - name: Update Ruby versions
     shell: bash
     run: |
-      sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ env.TARGET_RUBY_VERSION }}'/ .ruby-version
+      sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'$TARGET_RUBY_VERSION'/ .ruby-version
       cat .ruby-version
       echo "Updated .ruby-version file"
-      sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ env.TARGET_RUBY_VERSION }}'/ Dockerfile
+      sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'$TARGET_RUBY_VERSION'/ Dockerfile
       cat Dockerfile
       echo "Updated DockerFile"
 
   - name: Set up Ruby
     uses: ruby/setup-ruby@v1
     with:
-      ruby-version: ${{ env.TARGET_RUBY_VERSION }}
+      ruby-version: $TARGET_RUBY_VERSION
 
   - name: Attempt to run bundle update
     id: bundle-update
@@ -64,9 +64,9 @@ runs:
     run: |
       git config --local user.email "github-actions[bot]@users.noreply.github.com"
       git config --local user.name "github-actions[bot]"
-      if git ls-remote --exit-code --heads origin " ${{ env.COMMIT_BRANCH }}"; then
-        git push origin --delete "${{ env.COMMIT_BRANCH}}"
+      if git ls-remote --exit-code --heads origin " $COMMIT_BRANCH"; then
+        git push origin --delete "$COMMIT_BRANCH"
       fi
       git add .
-      git commit -m "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}"
-      git push origin ${{ env.COMMIT_BRANCH}}
+      git commit -m "Update Ruby to version $TARGET_RUBY_VERSION"
+      git push origin $COMMIT_BRANCH

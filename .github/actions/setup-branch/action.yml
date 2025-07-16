@@ -22,5 +22,5 @@ runs:
         echo "branch already exists ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}"
       else
         git branch ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}
-        git push -u origin  HEAD
+        git push --set-upstream origin ${{ steps.set-branch-name.outputs.COMMIT_BRANCH }}
       fi

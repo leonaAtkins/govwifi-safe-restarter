@@ -14,10 +14,12 @@ jobs:
       COMMIT_BRANCH: ${{ steps.setup-branch.outputs.COMMIT_BRANCH }}
       RUBY_PATHS: ${{ steps.check-ruby.outputs.RUBY_PATHS }}
     steps:
+
     - name: Check out code
       uses: actions/checkout@v4
       with:
         ref: add_GH_Action_upddate_Ruby
+
     - name: Check Ruby Version
       id: check-ruby
       uses: ./.github/actions/check-ruby
@@ -36,6 +38,7 @@ jobs:
       matrix:
         ruby-paths: ${{fromJson(needs.check-ruby-setup.outputs.RUBY_PATHS)}}
     steps:
+
     - name: Check out code
       uses: actions/checkout@v4
       with:
@@ -55,6 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-ruby-setup, upgrade-ruby]
     steps:
+
     - name: Check out code
       uses: actions/checkout@v4
       with:

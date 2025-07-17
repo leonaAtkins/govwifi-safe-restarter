@@ -37,7 +37,7 @@ jobs:
     strategy:
       matrix:
         #ruby-paths: ${{fromJson(needs.check-ruby-setup.outputs.RUBY_PATHS)}}
-        ruby-paths: ${{fromJson('[\".\"]') }}
+        ruby-paths: ${{fromJson('["."]') }}
     steps:
 
     - name: Check out code

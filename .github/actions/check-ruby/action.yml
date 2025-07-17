@@ -31,7 +31,7 @@ runs:
     shell: bash
     id: find-ruby-envs
     run: |
-      echo "$(find -type f -name '.ruby-version' -exec dirname {} \; | tr '\n' ',' )"
+      echo "$(find -type f -name '.ruby-version' -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')"
       r_paths=$(find -type f -name ".ruby-version" -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')
       paths_array=$(${r_paths//,/ })
       echo "RUBY_PATHS=[$r_paths]" >> $GITHUB_OUTPUT

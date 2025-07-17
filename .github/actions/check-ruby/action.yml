@@ -32,7 +32,7 @@ runs:
     id: find-ruby-envs
     run: |
       ## Create Path Array
-      paths_array=$(find -type f -name ".ruby-version" -exec dirname {} \;)
+      readarray -t paths_array < <(find -type f -name ".ruby-version" -exec dirname {} \;)
       ## create empty json array
       json_elements=()
       # Iterate through each discovered path.

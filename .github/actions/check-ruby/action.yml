@@ -34,7 +34,7 @@ runs:
       r_paths=$(find -type f -name ".ruby-version" -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')
       paths_array=(${r_paths//,/ })
       first_element=(${paths_array[0]})
-      echo "first_path=$first_element"  >> $GITHUB_ENV
+      echo "first_path=(${paths_array[0]})"  >> $GITHUB_ENV
       echo "RUBY_PATHS=[$r_paths]" >> $GITHUB_OUTPUT
       echo "First Path ${{env.first_path}} and paths [$r_paths]"
 

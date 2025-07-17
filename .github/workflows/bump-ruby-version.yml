@@ -34,7 +34,7 @@ jobs:
     needs: [check-ruby-setup]
     strategy:
       matrix:
-        ruby-paths: ${{fromJSON(needs.check-ruby-setup.outputs.RUBY_PATHS)}}
+        ruby-paths: ${{fromJson(needs.check-ruby-setup.outputs.RUBY_PATHS)}}
     steps:
     - name: Check out code
       uses: actions/checkout@v4

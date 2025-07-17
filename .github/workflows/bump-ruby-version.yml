@@ -49,7 +49,7 @@ jobs:
        if: ${{ env.RUBY_UPDATED }} == 'true'
        uses: ./.github/actions/update-ruby
        with:
-          ruby-path: ${{ matrix.ruby-paths }}
+          ruby-path: ${{ fromJson(matrix.ruby-paths) }}
 
   commit-changes:
     runs-on: ubuntu-latest

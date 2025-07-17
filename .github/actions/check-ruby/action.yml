@@ -47,9 +47,9 @@ runs:
       ## export first element, used to find initial ruby env
       echo "first_path=${paths_array[0]}" >> $GITHUB_ENV
       ## export string encase in [] for used in matrix input.
-      echo "RUBY_PATHS=[$json_array]" >> $GITHUB_OUTPUT
+      echo "RUBY_PATHS=$json_array" >> $GITHUB_OUTPUT
       ## for debug only.
-      echo "First Path ${paths_array[0]} and paths [$json_array]"
+      echo "First Path ${paths_array[0]} and paths $json_array"
 
   # get the first path from the paths array, set output variable to true if version different to that stored.
   - name: Check if Ruby is updated

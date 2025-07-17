@@ -20,7 +20,8 @@ runs:
     id: get-ruby-version
     shell: bash
     run: |
-      LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
+      #LATEST_RUBY=$(curl -s https://api.github.com/repos/ruby/ruby/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/' | tr '_' '.')
+      LATEST_RUBY=3.4.5
       echo "TARGET_RUBY_VERSION=$LATEST_RUBY" >> $GITHUB_OUTPUT
 
   # find all the ruby environments, convert new line to comma,
@@ -30,7 +31,7 @@ runs:
     shell: bash
     id: find-ruby-envs
     run: |
-      echo "$(find -type f -name '.ruby-version' -exec dirname {} \;)"
+      echo "$(find -type f -name '.ruby-version' -exec dirname {} \; | tr '\n' ',' )"
       r_paths=$(find -type f -name ".ruby-version" -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')
       paths_array=$(${r_paths//,/ })
       echo "RUBY_PATHS=[$r_paths]" >> $GITHUB_OUTPUT

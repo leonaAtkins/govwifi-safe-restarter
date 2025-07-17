@@ -33,15 +33,23 @@ runs:
     run: |
       ## Create Path Array
       paths_array=$(find -type f -name ".ruby-version" -exec dirname {} \;)
-      ## Convert array to line string, Quote each element, replace \n with , and remove training ,
-      r_paths=${paths_array[@]} | sed 's/^\(.*\)$/"&"/g' | tr '\n' ',' | sed 's/, *$//'
-      echo "should see path string here 1: $r_paths 2: ${paths_array[@]}"
+      ## create empty json array
+      json_elements=()
+      # Iterate through each discovered path.
+      for path in "${paths_array[@]}"; do
+        # This makes it a valid string element within a JSON array.
+        json_elements+=("\"$path\"")
+      done
+      ## Create a string by joining the elements
+      json_array="[$(IFS=','; echo "${json_elements[*]}")]"
+
+      echo "should see path string here 1: $json_array 2: ${paths_array[@]}"
       ## export first element, used to find initial ruby env
       echo "first_path=${paths_array[0]}" >> $GITHUB_ENV
       ## export string encase in [] for used in matrix input.
-      echo "RUBY_PATHS=[$r_paths]" >> $GITHUB_OUTPUT
+      echo "RUBY_PATHS=[$json_array]" >> $GITHUB_OUTPUT
       ## for debug only.
-      echo "First Path ${paths_array[0]} and paths [$r_paths]"
+      echo "First Path ${paths_array[0]} and paths [$json_array]"
 
   # get the first path from the paths array, set output variable to true if version different to that stored.
   - name: Check if Ruby is updated

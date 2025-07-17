@@ -13,7 +13,7 @@ runs:
   # Pull update from git, switch to branch
   - name: checkout update branch
     shell: bash
-    run: git fetch && git switch ${{ env.COMMIT_BRANCH }}
+    run: git fetch && git switch ${{ env.COMMIT_BRANCH }} && git pull
 
   # switch to the directory of the given ruby environment.
   - name: move to ruby path/directory

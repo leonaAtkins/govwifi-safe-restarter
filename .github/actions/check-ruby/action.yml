@@ -33,16 +33,16 @@ runs:
     run: |
       r_paths=$(find -type f -name ".ruby-version" -exec dirname {} \; | tr '\n' ',' | sed 's/, *$//')
       paths_array=(${r_paths//,/ })
-      echo "paths $paths_array"
+      first_path=$(${paths_array[0]}) >> $GITHUB_ENV
       echo "RUBY_PATHS=[$r_paths]" >> $GITHUB_OUTPUT
-      echo "paths ${paths_array[0]}"
+      echo "First Path $first_path and paths $RUBY_PATHS"
 
   # get the first path from the paths array, set output variable to true if version different to that stored.
   - name: Check if Ruby is updated
     shell: bash
     id: ruby-updated
     run: |
-      if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" "${paths_array[0]}/.ruby-version" ; then
+      if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" "${{env.first_path}}/.ruby-version" ; then
         echo "Ruby Version Match, nothing to do, exit with success."
         echo "RUBY_UPDATED=false" >> $GITHUB_OUTPUT
       else

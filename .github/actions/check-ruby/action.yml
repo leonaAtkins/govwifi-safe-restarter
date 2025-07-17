@@ -35,6 +35,7 @@ runs:
       paths_array=$(find -type f -name ".ruby-version" -exec dirname {} \;)
       ## Convert array to line string, Quote each element, replace \n with , and remove training ,
       r_paths=$paths_array | sed 's/^\(.*\)$/"&"/g' | tr '\n' ',' | sed 's/, *$//'
+      echo "should see path string here $r_paths"
       ## export first element, used to find initial ruby env
       echo "first_path=${paths_array[0]}" >> $GITHUB_ENV
       ## export string encase in [] for used in matrix input.

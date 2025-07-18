@@ -22,7 +22,7 @@ runs:
       ruby_paths='${{env.RUBY_PATHS}}'
       paths_array=(${ruby_paths})
       ## Check if any paths were found
-      if [ ${#paths_array=[@]} -eq 0 ]; then
+      if [ ${#paths_array[@]} -eq 0 ]; then
         echo "No 'ruby-version' files found. Exiting."
         exit 0
       fi

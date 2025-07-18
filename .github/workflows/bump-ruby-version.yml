@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
-      RUBY_UPDATED: ${{ steps.check-ruby.outputs.RUBY_UPDATED }}
+      NEW_RUBY: ${{ steps.check-ruby.outputs.NEW_RUBY }}
       COMMIT_BRANCH: ${{ steps.setup-branch.outputs.COMMIT_BRANCH }}
       RUBY_PATHS: ${{ steps.check-ruby.outputs.RUBY_PATHS }}
     steps:
@@ -26,7 +26,7 @@ jobs:
 
     - name: Setup github branch for Ruby Updates
       id: setup-branch
-      if: ${{ steps.check-ruby.outputs.RUBY_UPDATED }} == 'true'
+      if: ${{ steps.check-ruby.outputs.NEW_RUBY }} == 'true'
       uses: ./.github/actions/setup-branch
       env:
         TARGET_RUBY_VERSION: ${{ steps.check-ruby.outputs.TARGET_RUBY_VERSION }}
@@ -34,10 +34,6 @@ jobs:
   upgrade-ruby:
     runs-on: ubuntu-latest
     needs: [check-ruby-setup]
-    strategy:
-      matrix:
-        ruby-paths: ${{fromJson(needs.check-ruby-setup.outputs.RUBY_PATHS)}}
-        #ruby-paths: ${{fromJson('["."]') }}
     steps:
 
     - name: Check out code
@@ -49,11 +45,12 @@ jobs:
        env:
          TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
          COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
-         RUBY_UPDATED: ${{ needs.check-ruby-setup.outputs.RUBY_UPDATED}}
-       if: ${{ env.RUBY_UPDATED }} == 'true'
+         NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
+         RUBY_PATHS: ${{ needs.check-ruby-setup.outputs.RUBY_PATHS}}
+       if: ${{ env.NEW_RUBY }} == 'true'
        uses: ./.github/actions/update-ruby
        with:
-          ruby-path: ${{ matrix.ruby-paths }}
+          ruby-path: ${{ env.RUBY_PATHS}}
 
   commit-changes:
     runs-on: ubuntu-latest
@@ -69,8 +66,8 @@ jobs:
       env:
          TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
          COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
-         RUBY_UPDATED: ${{ needs.check-ruby-setup.outputs.RUBY_UPDATED}}
+         NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
       uses: ./.github/actions/commit-changes
-      if: ${{ env.RUBY_UPDATED }} == 'true'
+      if: ${{ env.NEW_RUBY }} == 'true'
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

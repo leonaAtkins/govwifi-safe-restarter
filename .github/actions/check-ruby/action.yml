@@ -5,9 +5,9 @@ outputs:
   TARGET_RUBY_VERSION:
     description: 'Ouput Ruby Version'
     value: ${{steps.get-ruby-version.outputs.TARGET_RUBY_VERSION}}
-  RUBY_UPDATED:
+  NEW_RUBY:
     description: 'If ruby version is updated from that which the reop uses.'
-    value: ${{steps.ruby-updated.outputs.RUBY_UPDATED}}
+    value: ${{steps.ruby-updated.outputs.NEW_RUBY}}
   RUBY_PATHS:
     description: "Paths found in this repo for ruby environments"
     value: ${{steps.find-ruby-envs.outputs.RUBY_PATHS}}
@@ -33,23 +33,8 @@ runs:
     run: |
       ## Create Path Array
       readarray -t paths_array < <(find -type f -name ".ruby-version" -exec dirname {} \;)
-      ## create empty json array
-      json_elements=()
-      # Iterate through each discovered path.
-      for path in "${paths_array[@]}"; do
-        # This makes it a valid string element within a JSON array.
-        json_elements+=("\"$path\"")
-      done
-      ## Create a string by joining the elements
-      json_array="[$(IFS=','; echo "${json_elements[*]}")]"
-
-      # echo "should see path string here 1: $json_array 2: ${paths_array[@]}"
-      ## export first element, used to find initial ruby env
-      # echo "first_path=${paths_array[0]}" >> $GITHUB_ENV
-      ## export string encase in [] for used in matrix input.
-      echo "RUBY_PATHS=$json_array" >> $GITHUB_OUTPUT
-      ## for debug only.
-      # echo "First Path ${paths_array[0]} and paths $json_array"
+      echo "RUBY_PATHS=${paths_array[@]}" >> $GITHUB_OUTPUT
+      echo "first_path=${paths_array[0]}" >> $GITHUB_ENV
 
   # get the first path from the paths array, set output variable to true if version different to that stored.
   - name: Check if Ruby is updated
@@ -58,8 +43,8 @@ runs:
     run: |
       if grep -q "${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }}" "${{env.first_path}}/.ruby-version" ; then
         echo "Ruby Version Match, nothing to do, exit with success."
-        echo "RUBY_UPDATED=false" >> $GITHUB_OUTPUT
+        echo "NEW_RUBY=false" >> $GITHUB_OUTPUT
       else
         echo "Current version of Ruby: $(cat .ruby-version) is different from latest: ${{ steps.get-ruby-version.outputs.TARGET_RUBY_VERSION }} continue to update."
-        echo "RUBY_UPDATED=true" >> $GITHUB_OUTPUT
+        echo "NEW_RUBY=true" >> $GITHUB_OUTPUT
       fi

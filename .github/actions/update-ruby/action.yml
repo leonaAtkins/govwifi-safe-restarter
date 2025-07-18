@@ -2,8 +2,8 @@ name: "Update Ruby"
 description: "Updates Ruby version"
 
 inputs:
-  ruby-path:
-    description: 'The path/directory where the ruby version config files are located, default root'
+  ruby-paths:
+    description: 'The paths/directories where the ruby version config files are located, default root'
     required: false
     default: '.'
 
@@ -15,48 +15,47 @@ runs:
     shell: bash
     run: git fetch && git switch ${{ env.COMMIT_BRANCH }}
 
-  # switch to the directory of the given ruby environment.
-  - name: move to ruby path/directory
-    shell: bash
-    run: cd ${{inputs.ruby-path}}/
-
-  # run the text replacements on the .ruby version and docker file.
-  - name: Update Ruby versions
-    shell: bash
-    run: |
-      sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ env.TARGET_RUBY_VERSION }}'/ .ruby-version
-      cat .ruby-version
-      echo "Updated .ruby-version file"
-      sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ env.TARGET_RUBY_VERSION }}'/ Dockerfile
-      cat Dockerfile
-      echo "Updated DockerFile"
-
   - name: Set up Ruby
     uses: ruby/setup-ruby@v1
     with:
       ruby-version: ${{ env.TARGET_RUBY_VERSION }}
 
-  # Attempt to run bundle update, this might fail due to builder issues, hence the continue on error flag.
-  - name: Run Bundle update
-    id: bundle-update
+  # run the text replacements on the .ruby version and docker file.
+  - name: Update Ruby versions
     shell: bash
     run: |
-      bundle update --ruby
-      echo "Updated Gemfile and dependencies"
-    continue-on-error: true
+      ##
+      # Check if any paths were found
+      if [ ${#inputs.ruby-paths[@]} -eq 0 ]; then
+        echo "No 'ruby-version' files found. Exiting."
+        exit 0
+      fi
+      for path in "${inputs.ruby-paths[@]}"; do
+        # pushd automatically manages a directory stack.
+        if ! pushd "$path" > /dev/null; then
+          echo "!!! ERROR: Could not change directory to $project_path. Skipping."
+          exit 1;
+        fi
 
-  # check if the previous command exited successfully,
-  # if not, remove the gemfeile.lock and rebuild.
-  - name: Check on update failure
-    shell: bash
-    if: steps.bundle-update.outcome != 'success'
-    run: |
-      echo "Bundle Update didn't work, so have to brute force it"
-      echo "Remove and rebuild lock file."
-      rm Gemfile.lock
-      echo "Gemfile.lock removed"
-      bundle install
-      echo "Reinstalled Gems and dependencies"
+        ## update .ruby file
+        sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ env.TARGET_RUBY_VERSION }}'/ .ruby-version
+        ## update docker file
+        sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ env.TARGET_RUBY_VERSION }}'/ Dockerfile
+        ## attempt to run bundle install
+        if ! bundle update --ruby; then
+          echo "!!! ERROR: 'bundle updatel' FAILED in $path !!!"
+          echo "So have to brute force it"
+          echo "Remove and rebuild Gem lock file."
+          rm Gemfile.lock
+          echo "Gemfile.lock removed"
+          bundle install
+          echo "Reinstalled Gems and dependencies"
+        else
+          echo "Bundle update Successful!"
+        fi
+        # Pop back to the original directory
+        popd > /dev/null
+      done
 
   # Check git for changes.
   - name: Check for changes
@@ -76,10 +75,10 @@ runs:
     run: |
       git config --local user.email "github-actions[bot]@users.noreply.github.com"
       git config --local user.name "github-actions[bot]"
-      if git ls-remote --exit-code --heads origin " ${{ env.COMMIT_BRANCH }}"; then
-        git push origin --delete "${{ env.COMMIT_BRANCH}}"
-      fi
-
+      #if git ls-remote --exit-code --heads origin " ${{ env.COMMIT_BRANCH }}"; then
+      #  git push origin --delete "${{ env.COMMIT_BRANCH}}"
+      #fi
+      git pull
       git add .
-      git commit -m "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }}"
+      git commit -m "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }} for ${{inputs.ruby-path}}"
       git push origin ${{ env.COMMIT_BRANCH}}

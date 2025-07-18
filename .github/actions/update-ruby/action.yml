@@ -19,7 +19,7 @@ runs:
     shell: bash
     run: |
       ## convert path variable into array
-      ruby_paths='${{env.RUBY_PATHS}}''
+      ruby_paths='${{env.RUBY_PATHS}}'
       paths_array=(${ruby_paths})
       ## Check if any paths were found
       if [ ${#paths_array=[@]} -eq 0 ]; then

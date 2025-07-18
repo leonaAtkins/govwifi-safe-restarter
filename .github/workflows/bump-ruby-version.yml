@@ -53,7 +53,7 @@ jobs:
        with:
           ruby-paths: ${{ env.RUBY_PATHS}}
 
-    - name: Raise PR
+    - name: Commit and Raise PR
       env:
          TARGET_RUBY_VERSION: ${{ needs.check-ruby-setup.outputs.TARGET_RUBY_VERSION }}
          COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}

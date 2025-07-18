@@ -47,20 +47,11 @@ jobs:
          COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
          NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
          RUBY_PATHS: ${{ needs.check-ruby-setup.outputs.RUBY_PATHS}}
+       ## Only update if the Ruby Version has changed.
        if: ${{ env.NEW_RUBY }} == 'true'
        uses: ./.github/actions/update-ruby
        with:
           ruby-paths: ${{ env.RUBY_PATHS}}
-
-  commit-changes:
-    runs-on: ubuntu-latest
-    needs: [check-ruby-setup, upgrade-ruby]
-    steps:
-
-    - name: Check out code
-      uses: actions/checkout@v4
-      with:
-        ref: add_GH_Action_upddate_Ruby
 
     - name: Raise PR
       env:
@@ -68,6 +59,7 @@ jobs:
          COMMIT_BRANCH: ${{ needs.check-ruby-setup.outputs.COMMIT_BRANCH }}
          NEW_RUBY: ${{ needs.check-ruby-setup.outputs.NEW_RUBY}}
       uses: ./.github/actions/commit-changes
+      ## Only update if the Ruby Version has changed.
       if: ${{ env.NEW_RUBY }} == 'true'
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -24,14 +24,16 @@ runs:
   - name: Update Ruby versions
     shell: bash
     run: |
-      ##
-      # Check if any paths were found
-      if [ ${#inputs.ruby-paths[@]} -eq 0 ]; then
+      ## convert path inputs into array
+      paths_array=(${{inputs.ruby_paths}})
+      ## Check if any paths were found
+      if [ ${#paths_array=[@]} -eq 0 ]; then
         echo "No 'ruby-version' files found. Exiting."
         exit 0
       fi
-      for path in "${inputs.ruby-paths[@]}"; do
-        # pushd automatically manages a directory stack.
+      ## Loop paths
+      for path in "${paths_array=[@]}"; do
+        ## pushd automatically manages a directory stack.
         if ! pushd "$path" > /dev/null; then
           echo "!!! ERROR: Could not change directory to $project_path. Skipping."
           exit 1;
@@ -43,7 +45,7 @@ runs:
         sed -i s/\[0-9\]\\.\[0-9\]\\.\[0-9\]/'${{ env.TARGET_RUBY_VERSION }}'/ Dockerfile
         ## attempt to run bundle install
         if ! bundle update --ruby; then
-          echo "!!! ERROR: 'bundle updatel' FAILED in $path !!!"
+          echo "!!! ERROR: 'bundle update' FAILED in $path !!!"
           echo "So have to brute force it"
           echo "Remove and rebuild Gem lock file."
           rm Gemfile.lock
@@ -56,29 +58,3 @@ runs:
         # Pop back to the original directory
         popd > /dev/null
       done
-
-  # Check git for changes.
-  - name: Check for changes
-    shell: bash
-    id: check_changes
-    run: |
-      if [[ -n "$(git status --porcelain)" ]]; then
-        echo "has_changes=true" >> $GITHUB_OUTPUT
-      else
-        echo "has_changes=false" >> $GITHUB_OUTPUT
-      fi
-
-  # commit and push the changes to the branch, again the PR can't access this workspace.
-  - name: Commit changes
-    if: steps.check_changes.outputs.has_changes == 'true'
-    shell: bash
-    run: |
-      git config --local user.email "github-actions[bot]@users.noreply.github.com"
-      git config --local user.name "github-actions[bot]"
-      #if git ls-remote --exit-code --heads origin " ${{ env.COMMIT_BRANCH }}"; then
-      #  git push origin --delete "${{ env.COMMIT_BRANCH}}"
-      #fi
-      git pull
-      git add .
-      git commit -m "Update Ruby to version ${{ env.TARGET_RUBY_VERSION }} for ${{inputs.ruby-path}}"
-      git push origin ${{ env.COMMIT_BRANCH}}

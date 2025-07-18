@@ -25,7 +25,7 @@ runs:
     shell: bash
     run: |
       ## convert path inputs into array
-      paths_array=(${{inputs.ruby_paths}})
+      paths_array=(${{inputs.ruby-paths}})
       ## Check if any paths were found
       if [ ${#paths_array=[@]} -eq 0 ]; then
         echo "No 'ruby-version' files found. Exiting."

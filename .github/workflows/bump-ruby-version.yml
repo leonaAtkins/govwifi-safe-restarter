@@ -50,7 +50,7 @@ jobs:
        if: ${{ env.NEW_RUBY }} == 'true'
        uses: ./.github/actions/update-ruby
        with:
-          ruby-path: ${{ env.RUBY_PATHS}}
+          ruby-paths: ${{ env.RUBY_PATHS}}
 
   commit-changes:
     runs-on: ubuntu-latest

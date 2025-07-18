@@ -50,8 +50,6 @@ jobs:
        ## Only update if the Ruby Version has changed.
        if: ${{ env.NEW_RUBY }} == 'true'
        uses: ./.github/actions/update-ruby
-       with:
-          ruby-paths: ${{ env.RUBY_PATHS}}
 
     - name: Commit and Raise PR
       env:
